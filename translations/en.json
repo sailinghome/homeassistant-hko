@@ -1,0 +1,17 @@
+{
+    "config": {
+        "abort": {
+            "one_only": "This integration has already been configured."
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "name": "Name of the integration",
+                    "location": "Location"
+                },
+                "description": "HKO",
+                "title": "Hong Kong Observatory"
+            }
+        }
+    }
+}
