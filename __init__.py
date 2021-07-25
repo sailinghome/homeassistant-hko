@@ -96,8 +96,8 @@ class HKOUpdateCoordinator(DataUpdateCoordinator):
         """Update data via HKO library."""
         try:
             async with timeout(10):
-                rhrread = await self.hko.get_rhrread()
-                fnd = await self.hko.get_fnd()
+                rhrread = await self.hko.get("rhrread")
+                fnd = await self.hko.get("fnd")
         except ClientConnectorError as error:
             raise UpdateFailed(error) from error
         return {API_CURRENT: self._convert_current(rhrread), API_FORECAST: [ self._convert_forecast(item) for item in fnd[API_WEATHER_FORECAST]]}
@@ -144,7 +144,7 @@ class HKOUpdateCoordinator(DataUpdateCoordinator):
         elif icon == 84 : return ATTR_CONDITION_FOG
         else            : return self._convert_info_condition(info)
 
-    def _convert_info_condition(info):
+    def _convert_info_condition(self, info):
         info = info.lower()
         if WEATHER_FORECAST_HAIL in info:
             return ATTR_CONDITION_HAIL
