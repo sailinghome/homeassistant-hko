@@ -35,25 +35,17 @@ from .const import (API_CURRENT, API_DATA, API_FORECAST, API_FORECAST_DATE,
                     API_PLACE, API_TEMPERATURE, API_VALUE,
                     API_WEATHER_FORECAST, CONF_LOCATION, COORDINATOR,
                     DEFAULT_DISTRICT, DOMAIN, KEY_DISTRICT, KEY_LOCATION,
-                    LOCATIONS, WEATHER_FORECAST_AT_FIRST,
-                    WEATHER_FORECAST_CLOUD, WEATHER_FORECAST_FINE,
-                    WEATHER_FORECAST_FOG, WEATHER_FORECAST_HAIL,
-                    WEATHER_FORECAST_HEAVY, WEATHER_FORECAST_INTERVAL,
-                    WEATHER_FORECAST_ISOLATED, WEATHER_FORECAST_MIST,
-                    WEATHER_FORECAST_OVERCAST, WEATHER_FORECAST_PERIOD,
-                    WEATHER_FORECAST_RAIN, WEATHER_FORECAST_SHOWER,
-                    WEATHER_FORECAST_SNOW, WEATHER_FORECAST_SUNNY,
-                    WEATHER_FORECAST_THUNDERSTORM, WEATHER_FORECAST_WIND)
+                    LOCATIONS)
 from .hko import HKO
 
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["weather"]
 
-# On Start Up
-async def async_setup(hass, config) -> bool:
-    """Set up Hong Kong Observatory component"""
-    hass.data.setdefault(DOMAIN, {})
-    return True
+# # On Start Up
+# async def async_setup(hass, config) -> bool:
+#     """Set up Hong Kong Observatory component"""
+#     hass.data.setdefault(DOMAIN, {})
+#     return True
 
 # ?
 async def async_setup_entry(hass, config_entry) -> bool:
@@ -69,15 +61,16 @@ async def async_setup_entry(hass, config_entry) -> bool:
 
     # Save Coordinator
     hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][config_entry.entry_id] = {
-        COORDINATOR: coordinator
-    }
+    hass.data[DOMAIN][config_entry.entry_id] = coordinator
     
     # Setup Platforms
     hass.config_entries.async_setup_platforms(config_entry, PLATFORMS)
     return True
 
-
+async def async_unload_entry(hass, config_entry) -> bool:
+    """Unload a config entry."""
+    unload_ok = await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS)
+    return unload_ok
 
 class HKOUpdateCoordinator(DataUpdateCoordinator):
     def __init__(self, hass, session, district, location):
@@ -86,18 +79,18 @@ class HKOUpdateCoordinator(DataUpdateCoordinator):
         self.district = district
         self.hko = HKO(session)
 
-        update_interval = timedelta(minutes=60)
-
+        update_interval = timedelta(minutes=10)
         super().__init__(
-            hass, _LOGGER, name=DOMAIN, update_interval=update_interval
+            hass, _LOGGER, name=DOMAIN,update_method= self._async_update_data(), update_interval=update_interval
         )
     
     async def _async_update_data(self):
         """Update data via HKO library."""
+        _LOGGER.warning("HKO Update")
         try:
             async with timeout(10):
-                rhrread = await self.hko.get("rhrread")
-                fnd = await self.hko.get("fnd")
+                rhrread = await self.hko.weather("rhrread")
+                fnd = await self.hko.weather("fnd")
         except ClientConnectorError as error:
             raise UpdateFailed(error) from error
         return {API_CURRENT: self._convert_current(rhrread), API_FORECAST: [ self._convert_forecast(item) for item in fnd[API_WEATHER_FORECAST]]}
@@ -146,29 +139,29 @@ class HKOUpdateCoordinator(DataUpdateCoordinator):
 
     def _convert_info_condition(self, info):
         info = info.lower()
-        if WEATHER_FORECAST_HAIL in info:
+        if "rain" in info:
             return ATTR_CONDITION_HAIL
-        elif WEATHER_FORECAST_SNOW in info and WEATHER_FORECAST_RAIN in info:
+        elif "snow" in info and "rain" in info:
             return ATTR_CONDITION_SNOWY_RAINY
-        elif WEATHER_FORECAST_SNOW in info:
+        elif "snow" in info:
             return ATTR_CONDITION_SNOWY
-        elif WEATHER_FORECAST_FOG in info or WEATHER_FORECAST_MIST in info:
+        elif "fog" in info or "mist" in info:
             return ATTR_CONDITION_FOG
-        elif WEATHER_FORECAST_WIND in info and WEATHER_FORECAST_CLOUD in info:
+        elif "wind" in info and "cloud" in info:
             return ATTR_CONDITION_WINDY_VARIANT
-        elif WEATHER_FORECAST_WIND in info:
+        elif "wind" in info:
             return ATTR_CONDITION_WINDY
-        elif WEATHER_FORECAST_THUNDERSTORM in info and not WEATHER_FORECAST_ISOLATED:
+        elif "thunderstorm" in info and not "isolated":
             return ATTR_CONDITION_LIGHTNING_RAINY
-        elif (WEATHER_FORECAST_RAIN in info or WEATHER_FORECAST_SHOWER in info or WEATHER_FORECAST_THUNDERSTORM in info) and WEATHER_FORECAST_HEAVY in info and not WEATHER_FORECAST_SUNNY in info and not WEATHER_FORECAST_FINE in info and not WEATHER_FORECAST_AT_FIRST in info:
+        elif ("rain" in info or "shower" in info or "thunderstorm" in info) and "heavy" in info and not "sunny" in info and not "fine" in info and not "at times at first" in info:
             return ATTR_CONDITION_POURING
-        elif (WEATHER_FORECAST_RAIN in info or WEATHER_FORECAST_SHOWER in info or WEATHER_FORECAST_THUNDERSTORM in info) and not WEATHER_FORECAST_SUNNY in info and not WEATHER_FORECAST_FINE in info:
+        elif ("rain" in info or "shower" in info or "thunderstorm" in info) and not "sunny" in info and not "fine" in info:
             return ATTR_CONDITION_RAINY
-        elif (WEATHER_FORECAST_CLOUD in info or WEATHER_FORECAST_OVERCAST in info) and not (WEATHER_FORECAST_INTERVAL in info or WEATHER_FORECAST_PERIOD in info):
+        elif ("cloud" in info or "overcast" in info) and not ("interval" in info or "period" in info):
             return ATTR_CONDITION_CLOUDY
-        elif (WEATHER_FORECAST_SUNNY in info) and (WEATHER_FORECAST_INTERVAL in info or WEATHER_FORECAST_PERIOD in info):
+        elif ("sunny" in info) and ("interval" in info or "period" in info):
             return ATTR_CONDITION_PARTLYCLOUDY
-        elif (WEATHER_FORECAST_SUNNY in info or WEATHER_FORECAST_FINE in info) and not WEATHER_FORECAST_SHOWER in info:
+        elif ("sunny" in info or "fine" in info) and not "shower" in info:
             return ATTR_CONDITION_SUNNY
         else:
             return ATTR_CONDITION_PARTLYCLOUDY
