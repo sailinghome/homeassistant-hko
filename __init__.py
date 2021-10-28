@@ -86,7 +86,6 @@ class HKOUpdateCoordinator(DataUpdateCoordinator):
     
     async def _async_update_data(self):
         """Update data via HKO library."""
-        _LOGGER.warning("HKO Update")
         try:
             async with timeout(10):
                 rhrread = await self.hko.weather("rhrread")
