@@ -1,9 +1,11 @@
+import logging
 import voluptuous as vol
 from homeassistant import config_entries
 
 from .const import (CONF_LOCATION, CONF_NAME, DEFAULT_LOCATION, DEFAULT_NAME,
                     DOMAIN, LOCATIONS)
 
+_LOGGER = logging.getLogger(__name__)
 
 # Get Location Names In List Of Location Objects
 def getLocName(n):

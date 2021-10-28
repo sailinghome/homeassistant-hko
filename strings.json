@@ -1,7 +1,8 @@
 {
     "config": {
         "abort": {
-            "one_only": "This integration has already been configured."
+            "one_only": "[%key:common::config_flow::abort::single_instance_allowed%]",
+            "unknown": "[%key:common::config_flow::error::unknown%]"
         },
         "step": {
             "user": {
