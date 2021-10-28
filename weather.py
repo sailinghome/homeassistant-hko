@@ -1,14 +1,16 @@
 from homeassistant.components.weather import WeatherEntity
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import TEMP_CELSIUS
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, CoordinatorEntity
 
 from .const import (API_CONDITION, API_CURRENT, API_FORECAST, API_HUMIDITY,
-                    API_TEMPERATURE, ATTRIBUTION, CONF_NAME, COORDINATOR,
+                    API_TEMPERATURE, ATTRIBUTION, CONF_NAME,
                     DEFAULT_NAME, DOMAIN, MANUFACTURER)
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities) -> None:
+async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
     """Set up HKO weather entity based on a config entry."""
     name = config_entry.data[CONF_NAME]
     unique_id = f"{config_entry.unique_id}"

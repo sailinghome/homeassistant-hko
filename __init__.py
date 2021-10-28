@@ -1,15 +1,12 @@
 """The Hong Kong Observatory component."""
 import logging
 from datetime import timedelta
-
 from aiohttp import ClientConnectorError
 from async_timeout import timeout
 from homeassistant.components.weather import (ATTR_CONDITION_CLEAR_NIGHT,
                                               ATTR_CONDITION_CLOUDY,
-                                              ATTR_CONDITION_EXCEPTIONAL,
                                               ATTR_CONDITION_FOG,
                                               ATTR_CONDITION_HAIL,
-                                              ATTR_CONDITION_LIGHTNING,
                                               ATTR_CONDITION_LIGHTNING_RAINY,
                                               ATTR_CONDITION_PARTLYCLOUDY,
                                               ATTR_CONDITION_POURING,
@@ -24,9 +21,9 @@ from homeassistant.components.weather import (ATTR_CONDITION_CLEAR_NIGHT,
                                               ATTR_FORECAST_TEMP_LOW,
                                               ATTR_FORECAST_TIME)
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.update_coordinator import (CoordinatorEntity,
-                                                      DataUpdateCoordinator,
+from homeassistant.helpers.update_coordinator import (DataUpdateCoordinator,
                                                       UpdateFailed)
 
 from .const import (API_CURRENT, API_DATA, API_FORECAST, API_FORECAST_DATE,
@@ -36,19 +33,13 @@ from .const import (API_CURRENT, API_DATA, API_FORECAST, API_FORECAST_DATE,
                     API_WEATHER_FORECAST, CONF_LOCATION, COORDINATOR,
                     DEFAULT_DISTRICT, DOMAIN, KEY_DISTRICT, KEY_LOCATION,
                     LOCATIONS)
-from .hko import HKO
+from hko import HKO
 
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["weather"]
 
-# # On Start Up
-# async def async_setup(hass, config) -> bool:
-#     """Set up Hong Kong Observatory component"""
-#     hass.data.setdefault(DOMAIN, {})
-#     return True
-
 # ?
-async def async_setup_entry(hass, config_entry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
     """Set up Hong Kong Observatory as config entry."""
     # Retrieve Config Entry
     location = config_entry.data[CONF_LOCATION]
@@ -67,7 +58,7 @@ async def async_setup_entry(hass, config_entry) -> bool:
     hass.config_entries.async_setup_platforms(config_entry, PLATFORMS)
     return True
 
-async def async_unload_entry(hass, config_entry) -> bool:
+async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     unload_ok = await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS)
     return unload_ok
