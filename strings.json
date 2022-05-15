@@ -1,13 +1,8 @@
 {
     "config": {
-        "abort": {
-            "one_only": "[%key:common::config_flow::abort::single_instance_allowed%]",
-            "unknown": "[%key:common::config_flow::error::unknown%]"
-        },
         "step": {
             "user": {
                 "data": {
-                    "name": "Name of the integration",
                     "location": "Location"
                 },
                 "description": "HKO",

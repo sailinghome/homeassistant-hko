@@ -6,14 +6,13 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, CoordinatorEntity
 
 from .const import (API_CONDITION, API_CURRENT, API_FORECAST, API_HUMIDITY,
-                    API_TEMPERATURE, ATTRIBUTION, CONF_NAME,
-                    DEFAULT_NAME, DOMAIN, MANUFACTURER)
+                    API_TEMPERATURE, ATTRIBUTION, CONF_LOCATION, DOMAIN, MANUFACTURER)
 
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
     """Set up HKO weather entity based on a config entry."""
-    name = config_entry.data[CONF_NAME]
-    unique_id = f"{config_entry.unique_id}"
+    name = config_entry.data[CONF_LOCATION]
+    unique_id = config_entry.unique_id
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
     async_add_entities([HKOEntity(name, unique_id, coordinator)], False)
 
@@ -46,7 +45,6 @@ class HKOEntity(CoordinatorEntity, WeatherEntity):
         """Return the device info."""
         return {
             "identifiers": {(DOMAIN, self._unique_id)},
-            "name": DEFAULT_NAME,
             "manufacturer": MANUFACTURER,
             "entry_type": "service",
         }

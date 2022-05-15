@@ -2,7 +2,7 @@ import logging
 import voluptuous as vol
 from homeassistant import config_entries
 
-from .const import (CONF_LOCATION, CONF_NAME, DEFAULT_LOCATION, DEFAULT_NAME,
+from .const import (CONF_LOCATION, DEFAULT_LOCATION,
                     DOMAIN, LOCATIONS)
 
 _LOGGER = logging.getLogger(__name__)
@@ -20,22 +20,16 @@ class HongKongObservatoryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input=None):
 
-        # Only allow one entry
-        if self._async_current_entries():
-            return self.async_abort(reason="one_only")
-            
-        # Submit Config
-        # Check For Error Here
         if user_input is not None:
+            await self.async_set_unique_id(user_input[CONF_LOCATION], raise_on_progress=False)
             return self.async_create_entry(
-                title=user_input[CONF_NAME], data=user_input
+                title=user_input[CONF_LOCATION], data=user_input
             )
 
         # Form Structure
         # Input Labels In translations/en.json
         data_schema = vol.Schema(
             {
-                vol.Required(CONF_NAME, default=DEFAULT_NAME): str,
                 vol.Required(CONF_LOCATION, default=DEFAULT_LOCATION): vol.In(
                     list(map(getLocName, LOCATIONS)) # Select Location
                 )

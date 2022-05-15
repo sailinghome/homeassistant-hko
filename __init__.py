@@ -1,7 +1,6 @@
 """The Hong Kong Observatory component."""
 import logging
 from datetime import timedelta
-from aiohttp import ClientConnectorError
 from async_timeout import timeout
 from homeassistant.components.weather import (ATTR_CONDITION_CLEAR_NIGHT,
                                               ATTR_CONDITION_CLOUDY,
@@ -30,10 +29,10 @@ from .const import (API_CURRENT, API_DATA, API_FORECAST, API_FORECAST_DATE,
                     API_FORECAST_ICON, API_FORECAST_MAX_TEMP,
                     API_FORECAST_MIN_TEMP, API_FORECAST_WEATHER, API_HUMIDITY,
                     API_PLACE, API_TEMPERATURE, API_VALUE,
-                    API_WEATHER_FORECAST, CONF_LOCATION, COORDINATOR,
+                    API_WEATHER_FORECAST, CONF_LOCATION,
                     DEFAULT_DISTRICT, DOMAIN, KEY_DISTRICT, KEY_LOCATION,
                     LOCATIONS)
-from hko import HKO
+from hko import HKO, HKOError
 
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["weather"]
@@ -81,7 +80,7 @@ class HKOUpdateCoordinator(DataUpdateCoordinator):
             async with timeout(10):
                 rhrread = await self.hko.weather("rhrread")
                 fnd = await self.hko.weather("fnd")
-        except ClientConnectorError as error:
+        except HKOError as error:
             raise UpdateFailed(error) from error
         return {API_CURRENT: self._convert_current(rhrread), API_FORECAST: [ self._convert_forecast(item) for item in fnd[API_WEATHER_FORECAST]]}
     
