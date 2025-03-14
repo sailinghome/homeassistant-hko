@@ -28,7 +28,7 @@ from homeassistant.helpers.update_coordinator import (DataUpdateCoordinator,
 from .const import (API_CURRENT, API_DATA, API_FORECAST, API_FORECAST_DATE,
                     API_FORECAST_ICON, API_FORECAST_MAX_TEMP,
                     API_FORECAST_MIN_TEMP, API_FORECAST_WEATHER, API_HUMIDITY,
-                    API_PLACE, API_TEMPERATURE, API_VALUE,
+                    API_PLACE, API_TEMPERATURE, API_VALUE, API_UVVALUE,
                     API_WEATHER_FORECAST, CONF_LOCATION,
                     DEFAULT_DISTRICT, DOMAIN, KEY_DISTRICT, KEY_LOCATION,
                     LOCATIONS)
@@ -88,6 +88,7 @@ class HKOUpdateCoordinator(DataUpdateCoordinator):
         current = {
             API_HUMIDITY: data[API_HUMIDITY][API_DATA][0][API_VALUE],
             API_TEMPERATURE: next((item[API_VALUE] for item in data[API_TEMPERATURE][API_DATA] if item[API_PLACE] == self.location), 0)
+            API_HUMIDITY: data[API_UVVALUE][API_DATA][0][API_UVVALUE],
         }
         return current
 
