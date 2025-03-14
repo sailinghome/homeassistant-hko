@@ -6,7 +6,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, CoordinatorEntity
 
 from .const import (API_CONDITION, API_CURRENT, API_FORECAST, API_HUMIDITY,
-                    API_TEMPERATURE, ATTRIBUTION, CONF_LOCATION, DOMAIN, MANUFACTURER)
+                    API_TEMPERATURE, API_UVINDEX, ATTRIBUTION, CONF_LOCATION, DOMAIN, MANUFACTURER)
 
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
@@ -68,6 +68,11 @@ class HKOEntity(CoordinatorEntity, WeatherEntity):
     def humidity(self) -> int:
         """Return the humidity."""
         return self.coordinator.data[API_CURRENT][API_HUMIDITY]
+      
+    @property
+    def humidity(self) -> int:
+        """Return the uv index."""
+        return self.coordinator.data[API_CURRENT][API_UVINDEX]
 
     @property
     def forecast(self) -> list:
