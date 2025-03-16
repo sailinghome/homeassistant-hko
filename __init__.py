@@ -87,8 +87,8 @@ class HKOUpdateCoordinator(DataUpdateCoordinator):
     def _convert_current(self, data):
         current = {
             API_HUMIDITY: data[API_HUMIDITY][API_DATA][0][API_VALUE],
-            API_TEMPERATURE: next((item[API_VALUE] for item in data[API_TEMPERATURE][API_DATA] if item[API_PLACE] == self.location), 0)
-            API_HUMIDITY: data[API_UVINDEX][API_DATA][0][API_VALUE],
+            API_TEMPERATURE: next((item[API_VALUE] for item in data[API_TEMPERATURE][API_DATA] if item[API_PLACE] == self.location), 0),
+            API_HUMIDITY: data[API_UVINDEX][API_DATA][0][API_VALUE]
         }
         return current
 
